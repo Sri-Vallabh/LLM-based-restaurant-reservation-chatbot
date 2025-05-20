@@ -1,0 +1,182 @@
+[
+  {
+    "id": "r001",
+    "name": "Spice Garden",
+    "location": "Downtown",
+    "cuisine": ["Indian"],
+    "capacity": 40,
+    "ambiance": "casual",
+    "available_times": ["18:00", "19:30", "21:00"]
+  },
+  {
+    "id": "r002",
+    "name": "Bella Italia",
+    "location": "Midtown",
+    "cuisine": ["Italian"],
+    "capacity": 35,
+    "ambiance": "romantic",
+    "available_times": ["17:30", "19:00", "20:30"]
+  },
+  {
+    "id": "r003",
+    "name": "Tokyo Bites",
+    "location": "Uptown",
+    "cuisine": ["Japanese"],
+    "capacity": 50,
+    "ambiance": "family",
+    "available_times": ["18:00", "19:30"]
+  },
+  {
+    "id": "r004",
+    "name": "The Global Spoon",
+    "location": "Central",
+    "cuisine": ["Indian", "Mexican", "Chinese"],
+    "capacity": 60,
+    "ambiance": "casual",
+    "available_times": ["17:00", "18:30", "20:00"]
+  },
+  {
+    "id": "r005",
+    "name": "Saffron Lounge",
+    "location": "Downtown",
+    "cuisine": ["Indian", "Persian"],
+    "capacity": 45,
+    "ambiance": "fine-dining",
+    "available_times": ["18:00", "19:30", "21:00"]
+  },
+  {
+    "id": "r006",
+    "name": "La Vida",
+    "location": "Uptown",
+    "cuisine": ["Spanish"],
+    "capacity": 30,
+    "ambiance": "romantic",
+    "available_times": ["17:30", "19:00", "20:30"]
+  },
+  {
+    "id": "r007",
+    "name": "Burger Craze",
+    "location": "Midtown",
+    "cuisine": ["American"],
+    "capacity": 25,
+    "ambiance": "casual",
+    "available_times": ["16:00", "17:00", "18:30"]
+  },
+  {
+    "id": "r008",
+    "name": "Wok Express",
+    "location": "Chinatown",
+    "cuisine": ["Chinese"],
+    "capacity": 55,
+    "ambiance": "family",
+    "available_times": ["18:00", "19:30"]
+  },
+  {
+    "id": "r009",
+    "name": "Taco Fiesta",
+    "location": "Southside",
+    "cuisine": ["Mexican"],
+    "capacity": 40,
+    "ambiance": "casual",
+    "available_times": ["17:00", "18:30", "20:00"]
+  },
+  {
+    "id": "r010",
+    "name": "Green Fork",
+    "location": "Downtown",
+    "cuisine": ["Vegan", "Organic"],
+    "capacity": 28,
+    "ambiance": "minimalist",
+    "available_times": ["17:00", "18:30", "20:00"]
+  },
+  {
+    "id": "r011",
+    "name": "The Royal Tandoor",
+    "location": "Eastside",
+    "cuisine": ["Indian"],
+    "capacity": 50,
+    "ambiance": "fine-dining",
+    "available_times": ["18:00", "19:30", "21:00"]
+  },
+  {
+    "id": "r012",
+    "name": "Ocean Grill",
+    "location": "Seaside",
+    "cuisine": ["Seafood"],
+    "capacity": 60,
+    "ambiance": "coastal",
+    "available_times": ["17:30", "19:00", "20:30"]
+  },
+  {
+    "id": "r013",
+    "name": "Le Petit Bistro",
+    "location": "Central",
+    "cuisine": ["French"],
+    "capacity": 26,
+    "ambiance": "romantic",
+    "available_times": ["18:00", "19:30"]
+  },
+  {
+    "id": "r014",
+    "name": "Fusion Point",
+    "location": "Uptown",
+    "cuisine": ["Asian", "Italian"],
+    "capacity": 48,
+    "ambiance": "modern",
+    "available_times": ["17:00", "18:30", "20:00"]
+  },
+  {
+    "id": "r015",
+    "name": "Himalayan Hearth",
+    "location": "Downtown",
+    "cuisine": ["Nepalese", "Tibetan"],
+    "capacity": 30,
+    "ambiance": "cozy",
+    "available_times": ["17:30", "19:00"]
+  },
+  {
+    "id": "r016",
+    "name": "BBQ Pitstop",
+    "location": "Westend",
+    "cuisine": ["American", "Barbecue"],
+    "capacity": 52,
+    "ambiance": "rustic",
+    "available_times": ["18:00", "19:30", "21:00"]
+  },
+  {
+    "id": "r017",
+    "name": "Curry & More",
+    "location": "Southside",
+    "cuisine": ["Indian", "Thai"],
+    "capacity": 40,
+    "ambiance": "family",
+    "available_times": ["17:00", "18:30", "20:00"]
+  },
+  {
+    "id": "r018",
+    "name": "Dolce Vita",
+    "location": "Midtown",
+    "cuisine": ["Italian", "French"],
+    "capacity": 36,
+    "ambiance": "elegant",
+    "available_times": ["18:00", "19:30", "21:00"]
+  },
+  {
+    "id": "r019",
+    "name": "K-Pot",
+    "location": "Chinatown",
+    "cuisine": ["Korean", "Hot Pot"],
+    "capacity": 42,
+    "ambiance": "lively",
+    "available_times": ["17:30", "19:00", "20:30"]
+  },
+  {
+    "id": "r020",
+    "name": "Garden Table",
+    "location": "Central",
+    "cuisine": ["Farm-to-Table", "Vegetarian"],
+    "capacity": 38,
+    "ambiance": "natural",
+    "available_times": ["17:00", "18:30", "20:00"]
+  }
+]
