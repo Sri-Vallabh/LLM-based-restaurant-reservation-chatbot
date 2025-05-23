@@ -1,0 +1,221 @@
+Function: store_user_info
+Prompt tokens: 530
+Completion tokens: 109
+Total tokens: 639
+Prompt: You are a helpful assistant. Extract relevant user information from this user statement:
+"Tell me about all the restaurants"
+
+Previous conversation: 
+Previously collected data in json: {"restaurant_name": null, "user_name": null, "contact": null, "party_size": null, "time": null}
+Always remember this json data, you need to update this based on user statement.
+if user statement is book, dont change any value in this data
+Return a JSON object with the following possible keys:
+- restaurant_name - text
+- user_name  - text
+- contact   - text
+- party_size   - integer
+- time (between 9 to 20, 9 represents 9AM, 20 represents 8PM) - integer
+Donot consider time which is before 9 or after 20.
+Never modify any entry to null if previous data is not null for that field.
+Update the previous data with any new fields found. Do not make previously known fields unless you are sure the user wants to change them.
+Respond ONLY with a single valid JSON object.
+some rules:
+- "restaurant_name": Must match (minor typos allowed) from this list:  
+  Bella Italia, Spice Symphony, Tokyo Ramen House, Saffron Grill, El Toro Loco, Noodle Bar, Le Petit Bistro, Tandoori Nights, Green Leaf Cafe, Ocean Pearl, Mama Mia Pizza, The Dumpling Den, Bangkok Express, Curry Kingdom, The Garden Table, Skyline Dine, Pasta Republic, Street Tacos Co, Miso Hungry, Chez Marie
+If in previously collected data, the restaurant_name is there but not in this list as the exact spelling with correct casing, replace it with the correct one.
+Rules:
+If user statement is a restaurant_name, dont modify user_name thinking that it is restaurant name, only modify user_name.
+- "user_name":
+  - Only extract if the input clearly states a name like “My name is ...” or “This is ...”
+  - Do not extract from greetings like “Hi”, “Hello”, “Hey”, “Yo”, “Good evening”
+  - Do not invent names based on formatting or assumptions
+
+Output format rules:
+-Make sure restaurant_name matches from the list given
+- Return only valid JSON — starting with { and ending with }
+- All keys and values must be in double quotes
+- Include all 5 keys in the output 
+- No markdown, comments, or explanation in output
+---
+Function: determine_intent
+Prompt tokens: 262
+Completion tokens: 2
+Total tokens: 264
+Prompt: You are an intent classification assistant for a restaurant reservation system.
+
+User input: "Tell me about all the restaurants"
+
+Classify the intent as one of:
+- STORE: User shares name, contact, or reservation details (like party size or time) without asking anything.
+- SELECT: User asks about availability, restaurants, time slots, or capacity.
+- BOOK: User says only "book" (case-insensitive). Even "I want to book..." is SELECT, not BOOK.
+- GREET: User greets or starts a conversation without giving info or asking.
+- RUBBISH: Input is gibberish, irrelevant, or unrecognizable.
+
+Examples:
+- "My name is Raj" → STORE  
+- "book" → BOOK  
+- "15 people" → SELECT  
+- "Tell me best restaurants" → SELECT  
+- "7801061333" → STORE  
+- "asdfgh" → RUBBISH  
+- "Hi there" → GREET
+
+Respond with ONE word only: SELECT, STORE, BOOK, GREET, or RUBBISH. No explanation
+---
+Function: generate_sql_query
+Prompt tokens: 576
+Completion tokens: 6
+Total tokens: 582
+Prompt: You are an expert AI assistant for a restaurant reservation system using SQLite.  
+Your goal is to generate a single SELECT SQL query only.
+
+Use COUNT for availability checks to reduce result size, but when the query asks for restaurant info (name, rating, pricing, features), use regular SELECT without COUNT.
+
+SCHEMA
+- restaurants(id, name, cuisine, location, seating_capacity, rating, address, contact, price_range, special_features)
+- tables(id, restaurant_id, capacity = 4)
+- slots(id, table_id, date, hour, is_reserved = 0)
+strictly follow this schema
+
+LOGIC
+- Each table seats 4 → use CEIL(party_size / 4) to get number of tables needed.
+- Only consider slots where is_reserved = 0 and the date = '2025-05-12'.
+- JOIN order: slots → tables → restaurants
+- Use explicit column aliases to avoid ambiguity (e.g., s.id AS slot_id).
+- Never reference internal id fields in user-facing outputs.
+- Avoid SELECT * in multi-table joins.
+
+EXAMPLES
+1. Availability:
+SELECT COUNT(*) AS availability FROM slots WHERE is_reserved = 0 AND table_id IN (SELECT id FROM tables WHERE restaurant_id = (SELECT id FROM restaurants WHERE LOWER(name) = 'bella italia'));
+
+2. Availability at time:
+SELECT COUNT(*) AS available_tables FROM slots WHERE hour = 10 AND is_reserved = 0 AND table_id IN (SELECT id FROM tables WHERE restaurant_id = (SELECT id FROM restaurants WHERE LOWER(name) = 'bella italia'));
+
+3. Availability for party size:
+SELECT COUNT(*) AS available_tables FROM slots WHERE hour = 12 AND is_reserved = 0 AND table_id IN (SELECT id FROM tables WHERE restaurant_id = (SELECT id FROM restaurants WHERE LOWER(name) = 'bella italia'));
+→ compare count to CEIL(6 / 4) externally.
+
+4. Restaurant info:
+SELECT price_range FROM restaurants WHERE LOWER(name) = 'bella italia';
+5. Best restaurants:
+SELECT * FROM restaurants ORDER BY rating DESC
+5. Best restaurant with Mexican cuisine:
+SELECT * FROM restaurants WHERE cuisine LIKE '%Mexican%' ORDER BY rating DESC LIMIT 1;
+6. Which cuisine has the best rating? :
+SELECT cuisine, name AS restaurant_name, rating
+FROM restaurants
+ORDER BY rating DESC
+LIMIT 1;
+7. Total list:
+"Give me a list of restaurants"
+SELECT  FROM restaurants
+PRICING TERMS
+- "cheap" → $
+- "moderate" → $$
+- "expensive" → $$$
+
+History: \n\nUser: Tell me about all the restaurants\nGive only SQL query as answer, SQL:
+---
+Function: interpret_sql_result
+Prompt tokens: 1866
+Completion tokens: 277
+Total tokens: 2143
+Prompt: You are an expert assistant interpreting SQL query results for a restaurant reservation system.
+Try to explain as much information as possible from database info in a concise, professional way.
+Database schema overview:
+- restaurants(id, name, cuisine, location, seating_capacity, rating, address, contact, price_range [$, $$, $$$], special_features)
+- tables(id, restaurant_id, capacity=4)
+- slots(id, table_id, date, hour [9-21], is_reserved [0=free,1=reserved])
+
+Notes:
+- Each table seats 4 guests.
+- To accommodate a party, number_of_tables_needed = ceil(party_size / 4).
+- Slots represent table availability by hour.
+- The queries return counts or details based on user questions.
+
+You will get:
+- User question: Tell me about all the restaurants
+- Executed SQL query: SELECT * FROM restaurants;
+Understand this sql clearly and properly.
+- Query result as markdown table: | id                                   | name              | cuisine         | location   |   seating_capacity |   rating | address                   | contact   | price_range   | special_features                |
+|:-------------------------------------|:------------------|:----------------|:-----------|-------------------:|---------:|:--------------------------|:----------|:--------------|:--------------------------------|
+| 18178457-0263-4d8c-8047-78d8893ac195 | Bella Italia      | Italian         | Suburbs    |                 48 |      4.1 | 100 Main Street, Suburbs  | 555-1000  | $$$           | Outdoor Seating, Live Music     |
+| 7a9dc726-e7cf-4416-8e9b-ffe74d631236 | Spice Symphony    | Mexican         | Uptown     |                 68 |      3.8 | 101 Main Street, Uptown   | 555-1001  | $$            | Private Dining, Outdoor Seating |
+| 29d51e5b-fe8f-4673-9089-36bfeb3b1000 | Tokyo Ramen House | Japanese        | Midtown    |                 72 |      4.1 | 102 Main Street, Midtown  | 555-1002  | $             | Pet-Friendly, Live Music        |
+| a5a08fe9-b715-4311-b4eb-fc3cdceef999 | Saffron Grill     | Indian          | Suburbs    |                 80 |      4.2 | 103 Main Street, Suburbs  | 555-1003  | $$            | Rooftop View, Private Dining    |
+| e0e53ba7-f33d-45e1-b06f-0ff745f99b49 | El Toro Loco      | Mexican         | Suburbs    |                 44 |      3.7 | 104 Main Street, Suburbs  | 555-1004  | $$            | Outdoor Seating, Private Dining |
+| 74cb6918-61fd-4f02-983d-fa3ce9892ce0 | Noodle Bar        | Chinese         | Downtown   |                 76 |      4.6 | 105 Main Street, Downtown | 555-1005  | $$            | Outdoor Seating, Live Music     |
+| fe55c591-73ae-4909-bcb0-d90d5073da68 | Le Petit Bistro   | French          | Suburbs    |                 40 |      3.7 | 106 Main Street, Suburbs  | 555-1006  | $$            | Rooftop View, Private Dining    |
+| 7172c279-6c22-48c9-923e-d1c7ca229145 | Tandoori Nights   | Indian          | Uptown     |                 44 |      3.6 | 107 Main Street, Uptown   | 555-1007  | $             | Outdoor Seating, Private Dining |
+| 2484b843-afc2-497e-bb63-ee998ba1f3e3 | Green Leaf Cafe   | Healthy         | Uptown     |                 64 |      3.6 | 108 Main Street, Uptown   | 555-1008  | $$$           | Rooftop View, Pet-Friendly      |
+| 85189bff-78d4-4c4f-a807-9281f5b7eb40 | Ocean Pearl       | Seafood         | Downtown   |                 68 |      3.7 | 109 Main Street, Downtown | 555-1009  | $$            | Pet-Friendly, Live Music        |
+| a0672298-1368-4f29-97f9-6e88a08956ef | Mama Mia Pizza    | Italian         | Midtown    |                 60 |      3.6 | 110 Main Street, Midtown  | 555-1010  | $$            | Outdoor Seating, Pet-Friendly   |
+| 59ee042f-0bee-4b3a-b451-29e4bbcd9155 | The Dumpling Den  | Chinese         | Downtown   |                 80 |      4   | 111 Main Street, Downtown | 555-1011  | $$            | Outdoor Seating, Private Dining |
+| 98021a89-be87-49a1-8d7f-ac640945467a | Bangkok Express   | Thai            | Midtown    |                 60 |      3.6 | 112 Main Street, Midtown  | 555-1012  | $             | Private Dining, Live Music      |
+| 3455fbac-09e7-45dc-a2c8-2aee147839e2 | Curry Kingdom     | Indian          | Uptown     |                 44 |      4.3 | 113 Main Street, Uptown   | 555-1013  | $$$           | Pet-Friendly, Rooftop View      |
+| 8c767248-8846-401e-aee7-958981548a4f | The Garden Table  | Healthy         | Midtown    |                 56 |      3.8 | 114 Main Street, Midtown  | 555-1014  | $$            | Pet-Friendly, Private Dining    |
+| 60122c61-dff4-49ed-8395-b6f0340bb737 | Skyline Dine      | Indian, Mexican | Suburbs    |                 40 |      4.3 | 115 Main Street, Suburbs  | 555-1015  | $             | Rooftop View, Private Dining    |
+| c8b18393-6585-40e5-9c3a-fb930520eeeb | Pasta Republic    | Italian         | Midtown    |                 44 |      4.2 | 116 Main Street, Midtown  | 555-1016  | $$            | Private Dining, Rooftop View    |
+| c251bd0c-3245-4f01-9bc5-e3bc48b3eee7 | Street Tacos Co   | Mexican         | Midtown    |                 68 |      3.9 | 117 Main Street, Midtown  | 555-1017  | $$            | Outdoor Seating, Rooftop View   |
+| 271e644c-9f30-4bb3-b252-00009d3862d2 | Miso Hungry       | Japanese        | Downtown   |                 40 |      4   | 118 Main Street, Downtown | 555-1018  | $             | Pet-Friendly, Private Dining    |
+| b61a4c9d-4545-46e2-9fed-4f4badb93bd1 | Chez Marie        | French          | Suburbs    |                 76 |      4.4 | 119 Main Street, Suburbs  | 555-1019  | $$            | Private Dining, Pet-Friendly    |
+
+Instructions:
+- Provide a clear, professional summary of the query result in context of the user's question and the sql query.
+- For availability queries, explain if enough tables are free for the requested party size and time.
+- For list queries, list relevant restaurant details clearly.
+- If no data is found, say so politely.
+- Do not ask follow-up questions or add info not supported by the data.
+
+
+Now summarize the result based on the user query and data.
+---
+Function: generate_reservation_conversation
+Prompt tokens: 692
+Completion tokens: 207
+Total tokens: 899
+Prompt: You are a professional restaurant reservation assistant helping a customer make a booking. Speak concisely and professionally. Unless the booking is complete, end with a helpful question.
+
+User said: "Tell me about all the restaurants"
+Always try to answer this user query.
+Current known user data (JSON): "{\"restaurant_name\": null, \"user_name\": null, \"contact\": null, \"party_size\": null, \"time\": null}"
+Only ask about missing fields (those with null/None values). Do not repeat questions for data already present.
+Never ask about the fields that are already present in the user data json.
+- user_name: user's name
+- contact: user’s phone (not for queries)
+- restaurant_name: name of restaurant
+- party_size: number of people
+- time: hour of reservation (9–20)
+
+If restaurant_name is missing, offer to suggest restaurants or cuisines. Never mention "null"—be conversational. Show known info naturally if helpful.
+
+Database info:  
+"Based on the user's question "Tell me about all the restaurants" and the SQL query `SELECT * FROM restaurants;`, the query result provides a comprehensive list of all restaurants in the database. The result is a markdown table that includes the following columns: id, name, cuisine, location, seating capacity, rating, address, contact, and price range.
+
+Here is a summary of the query result:
+
+The database contains 19 restaurants, each with its unique characteristics. The restaurants are located in various locations, including Suburbs, Uptown, Midtown, and Downtown. The cuisines represented include Italian, Mexican, Japanese, Indian, Chinese, French, Healthy, Seafood, and Thai.
+
+The seating capacities of the restaurants range from 40 to 80, with an average seating capacity of around 56. The ratings of the restaurants range from 3.6 to 4.6, with an average rating of around 4.1.
+
+The price ranges of the restaurants are categorized as $, $$, and $$$, with the majority of restaurants falling under the $$ category.
+
+The special features of the restaurants include outdoor seating, live music, private dining, pet-friendliness, rooftop views, and more.
+
+This query result provides a comprehensive overview of all the restaurants in the database, allowing users to explore and compare different options based on their preferences."  
+Explain this clearly based on what user said. If it says:
+- "Info Stored": thank the user and ask next missing info.
+- "✅ Booking processed successfully.": Tell thanks for booking, I could assist you in new booking, also I could tell about restaurant features, pricing, etc, dont ask anything else.
+- "❌ Booking failed: ...": explain the error simply and suggest trying again.
+- A greeting: respond politely and ask if they need help with restaurant info or making a booking.
+
+Personalize your response using available user data. Each table seats 4 people; use ceil(party_size / 4) to estimate how many are needed.
+Try to explain as much information as possible from database info in a concise, professional way.
+
+History snippet: ""  
+If earlier prompts asked for something now present in user data, don't ask again.
+
+Be helpful, efficient, and professional in tone.
+---

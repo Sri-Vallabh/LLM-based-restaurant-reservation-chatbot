@@ -39,8 +39,9 @@ SELECT cuisine, name AS restaurant_name, rating
 FROM restaurants
 ORDER BY rating DESC
 LIMIT 1;
-
-
+7. Total list:
+"Give me a list of restaurants"
+SELECT  FROM restaurants
 PRICING TERMS
 - "cheap" → $
 - "moderate" → $$

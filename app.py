@@ -6,7 +6,7 @@ import re
 import json
 from sticky import sticky_container
 # Set your Groq API key
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 # Initialize Groq's OpenAI-compatible client
 client = OpenAI(
@@ -65,7 +65,27 @@ def execute_transaction(sql_statements):
             txn_conn.close()
 
 
-    
+
+import inspect
+
+def log_groq_token_usage(response, prompt=None, function_name=None, filename="efficiency_log.txt"):
+    usage = response.usage
+    log_message = (
+        f"Function: {function_name or 'unknown'}\n"
+        f"Prompt tokens: {usage.prompt_tokens}\n"
+        f"Completion tokens: {usage.completion_tokens}\n"
+        f"Total tokens: {usage.total_tokens}\n"
+        f"Prompt: {prompt}\n"
+        "---\n"
+    )
+    # print(log_message)
+    # Fix: Add encoding="utf-8" here ▼
+    with open(filename, "a", encoding="utf-8") as f:  # ← THIS LINE
+        f.write(log_message)
+
+
+
+
 def interpret_sql_result(user_query, sql_query, result):
     if isinstance(result, pd.DataFrame):
         # Convert DataFrame to list of dicts
@@ -79,7 +99,7 @@ def interpret_sql_result(user_query, sql_query, result):
         sql_query=sql_query,
         result_str=json.dumps(result_dict, indent=2)  # Pass as formatted JSON string
     )
-
+    
     response = client.chat.completions.create(
         model="llama3-8b-8192",
         messages=[
@@ -88,7 +108,7 @@ def interpret_sql_result(user_query, sql_query, result):
         ],
         temperature=0.3
     )
-
+    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
     return response.choices[0].message.content.strip()
 def generate_reservation_conversation(user_query, history_prompt, sql_summary, user_data):
     words = history_prompt.split() if history_prompt else []
@@ -118,6 +138,7 @@ def generate_reservation_conversation(user_query, history_prompt, sql_summary, u
 
     if not response.choices:
         return "Sorry, I couldn't generate a response right now."
+    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
 
     return response.choices[0].message.content.strip()
 
@@ -134,6 +155,7 @@ def determine_intent(user_input):
         ],
         temperature=0
     )
+    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
     return response.choices[0].message.content.strip().upper()
 
 
@@ -153,7 +175,7 @@ def store_user_info(user_input,history_prompt):
                   {"role": "user", "content": prompt}],
         temperature=0.3
     )
-
+    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
 
     try:
         # Print raw LLM output for inspection
@@ -204,7 +226,7 @@ def generate_sql_query(user_input,restaurant_name,party_size,time, history_promp
         ],
         temperature=0.3
     )
-
+    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
     raw_sql = response.choices[0].message.content.strip()
     extracted_sql = re.findall(r"(SELECT[\s\S]+?)(?:;|$)", raw_sql, re.IGNORECASE)
     sql_query = extracted_sql[0].strip() + ";" if extracted_sql else raw_sql
