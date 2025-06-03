@@ -12,11 +12,16 @@ This is a conversational restaurant reservation assistant built using **LLMs (ll
 
 ### 🛠️ Requirements
 
-* Python 3.8+
-* `streamlit`
-* `pandas`
-* `openai` (for LLM interface)
-*  `sqlite3`
+* `Python 3.8+`
+* `chromadb==1.0.10`
+* `openai==1.82.0`
+* `pandas==2.2.3`
+* `redis==6.1.0`
+* `sentence-transformers==4.1.0`
+* `streamlit==1.45.1`
+* `transformers==4.52.3`
+
+
 
 
 ### 🧩 Installation
@@ -34,29 +39,58 @@ streamlit run app.py
 ```
 
 Ensure the `restaurant_reservation.db` is in the /db folder inside  the root directory. This contains all restaurant, table, slot, and reservation data.
----
-
-## 🧠 Language Model
-
-
-This project uses **Meta’s LLaMA 3 8B** language model (`llama3-8b-8192`) served via **Groq’s OpenAI-compatible API**, leveraging their ultra-fast **LPU (Language Processing Unit)** hardware for low-latency inference. The model is accessed using the `openai` Python library with a simple configuration that sets the base URL to Groq's endpoint.  The system employs a **RAG (Retrieval-Augmented Generation)**-like approach to extract relevant data from the reservation database, ensuring responses are grounded in real-time availability and user-specific details. It supports a context window of **8192 tokens**, allowing it to handle extended conversations, database results, and prompt history efficiently. It is used in a **modular, multi-step fashion** to handle different aspects of the reservation flow:
-
-1. **Intent Detection**: Determines what the user wants to do—whether it's booking a table, checking availability, asking general questions, or greeting or even rubbish(handling edge cases).
-
-2. **Information Extraction**: Parses free-form user input to extract structured fields like restaurant name, user name, contact info, party size, and reservation time.
-
-3. **SQL Query Generation**: If the user asks about availability or restaurant details, the model generates precise `SELECT` queries based on the schema to fetch relevant data from the database.
-
-4. **Result Interpretation**: Converts raw SQL result tables into human-readable summaries, ensuring the response is conversational and helpful.
-
-5. **Multi-Turn Dialogue Management**: Maintains context across multiple messages, uses previous inputs and system memory to hold state, and builds a coherent and helpful conversation thread with the user.
-
-Each of these tasks is handled through **specialized prompts**, improving modularity and reliability.
-
-Note: Final reservation is not performed by the llm for security reasons, there is a separate logic module to do the final booking.
 
 
 ---
+
+## 🧠 Language Model & Retrieval Architecture
+
+This project leverages **Meta’s LLaMA 3 8B** language model (`llama3-8b-8192`), accessed via **Groq’s OpenAI-compatible API**. Groq’s unique **LPU (Language Processing Unit)** hardware delivers ultra-fast inference speeds—up to 876 tokens per second for LLaMA 3 8B—enabling near-instantaneous responses even for complex, multi-step conversations. The model’s 8192-token context window allows it to efficiently process extended dialogues, rich database results, and prompt histories.
+
+The system is built around a **Retrieval-Augmented Generation (RAG)** architecture. Here’s how it works:
+
+- **Semantic Search & Retrieval:**  
+  - **ChromaDB** is used as the vector database to store embeddings of restaurant, table, and slot data.
+  - User queries and database content are converted to embeddings using the **all-MiniLM-L6-v2** sentence transformer model from Hugging Face’s Sentence Transformers library.
+  - This enables the system to quickly find semantically similar information, such as restaurants matching a cuisine or tables with specific features.
+- **Grounding in Real-Time Data:**  
+  - The LLM is provided with both the results of semantic search and, when needed, structured data retrieved from the SQLite database.
+  - This ensures responses are always up-to-date and contextually accurate.
+- **Modular, Multi-Step Processing:**  
+  - The LLM is used in a modular fashion, with specialized prompts for each stage of the conversation:
+
+### **Key Processing Steps**
+
+1. **Intent Detection**  
+   Determines the user’s goal—booking a table, checking availability, asking general questions, or handling edge cases and non-sequiturs.
+
+2. **Information Extraction**  
+   Extracts structured fields (restaurant name, user name, contact info, party size, reservation time) from free-form user input.
+
+3. **Extracting information from database**  
+   - **Semantic Search:** For natural language queries (e.g., “Italian restaurants with outdoor seating”), the LLM triggers a semantic search in ChromaDB, powered by `all-MiniLM-L6-v2` embeddings.
+   ### Cases where semantic search approach fails:
+   - **SQL Query Generation:** For precise data requests (e.g., “Show all tables available at 7pm”), the LLM generates SQL queries to fetch data from the SQLite database.
+
+4. **Result Interpretation**  
+   Converts raw SQL or semantic search results into clear, conversational summaries for the user.
+
+5. **Multi-Turn Dialogue Management**  
+   Maintains context across messages, using previous inputs and system memory to build coherent, helpful conversations with the user.
+
+### **Security & Control**
+
+- **No Direct Booking by LLM:**  
+  For security, the LLM is not permitted to perform direct database modifications. Final reservations are handled by a dedicated, safeguarded logic module.
+- **Prompt Engineering:**  
+  Each task (intent, extraction, query, summarization) is managed by a specialized prompt, improving reliability and modularity.
+
+---
+
+## **In summary:**  
+This architecture combines the speed and intelligence of LLaMA 3 via Groq with robust retrieval from ChromaDB (using `all-MiniLM-L6-v2` embeddings) and SQLite, ensuring fast, accurate, and context-aware responses for every user query.
+
+
 ## 💬 Example User Journeys with Application Walkthrough
 
 
@@ -65,32 +99,36 @@ Below are screenshots showing the end-to-end flow of the restaurant reservation 
 ---
 
 ### 🟢 Image 1: Landing Page  
-![Opening](assets/opening_1.png)
+![Opening](assets/landing.png)
 
 The landing page welcomes users and prompts:  
-**"Ask something about restaurants or reservations..."**  
+**"Ask something about restaurants or reservations..."** 
+
+
 This initiates a free-form, conversational interface for users to interact naturally.
 Here, also names of restaurants, cuisines, special features can be seen, which also stays along with the conversation thread which is scrollable.
+
 ---
 
 ### 💬 Image 2: General Conversation  
-![Step 1](assets/1.png)
+![Step 1](assets/greet_general_convo.png)
 
 The assistant engages in friendly conversation, understanding user intent like greetings, small talk, or queries about restaurants.
 
 ---
 
 ### 🔍 Image 3: Database Query + Interpretation  
-![Step 2](assets/2.png)
+![Step 2](assets/general_conv_info_through_chat.png)
 
-The assistant takes a user query (e.g., " What are the available cuisines?"), generates an appropriate SQL query, executes it on the database, interprets the result, and returns a natural, conversational response.
+The assistant first uses ChromaDB with semantic search to quickly retrieve relevant answers from a knowledge base. If no confident result is found, it dynamically generates an appropriate SQL SELECT query, executes it on the structured database, interprets the result, and returns a natural, conversational response.
 
 ---
 
 ### 🤝 Image 4 to 6: Information Gathering + Suggestions  
-![Step 3](assets/3.png)  
-![Step 4](assets/4.png)  
-![Step 5](assets/5.png)
+![Step 3](assets/name_entering.png)  
+![Step 4](assets/all_resto.png) 
+### Handling random text
+![Step 5](assets/rubbish.PNG) 
 
 Through ongoing conversation, the assistant extracts necessary reservation information:  
 - 🏨 Restaurant name  
@@ -104,14 +142,14 @@ It continues to help the user by checking availability and making suggestions.
 ---
 
 ### ✅ Image 7: Ready for Booking Confirmation  
-![Step 6](assets/6.png)
+![Step 6](assets/ready_to_book.png)
 
 Once all required information is gathered, the assistant summarizes the reservation details and asks for user confirmation with a simple **`book`** command.
 
 ---
 
 ### 🧾 Image 8: Booking Confirmation  
-![Step 7](assets/7.png)
+![Step 7](assets/booking_successful.png)
 
 Booking is processed successfully!
 
@@ -284,42 +322,30 @@ By handling these cases gracefully, the assistant ensures that users have a seam
 
 
 
-## 🧠 Business Strategy Summary
 
-### 🔍 Problem
-
-Restaurants often struggle with fragmented booking systems, no-shows, and poor conversational interfaces.
-
-### 💡 Opportunity
-
-* AI-powered assistants streamline booking while providing a human-like experience.
-* Can answer FAQs, collect information passively, and integrate with POS or CRM systems.
-
-### 📈 Success Metrics
-
-* 💬 90%+ booking completion rate post-data collection
-* 🧑‍💼 25% reduction in manual staff interventions
-* 🔁 < 5% drop-off rate during multi-turn conversations
-
-### 📊 ROI Potential
-
-* Time saved per reservation = \~3 minutes
-* For 100 daily bookings, savings = 5 hours/day
-* Yearly FTE savings = \~\$15–30K per location
-
----
 
 ## 🧭 Assumptions, Limitations & Enhancements
 
-### ✅ Assumptions
+### Assumptions:
+* There is a hardcoded 4-person table capacity, so the system itself selects multiple tables that are available at that time.
+* Reservation slots are fixed to **2025-05-12**, and all reservations are for this date.
+---
+### ⚠️ Limitations:
 
-* All bookings are for a fixed date (`2025-05-12`) from 9AM to 9PM for testing simplicity
+* The system currently supports reservations only for a fixed date (2025-05-12). This could be extended to multi-day support by adding appropriate entries to the database.
+* Since the system relies on Large Language Models (LLMs), there's **no absolute guarantee of perfect behavior**—LLMs can occasionally misinterpret queries, miss context, or produce inaccurate outputs.
+* **Table preferences cannot be specified** by the user. The system auto-assigns tables based on availability, so users cannot choose specific table locations (e.g., window-side, outdoor, etc.).
+* Only **select queries** are executed directly by the LLM to ensure **data safety**. For insert/update operations (e.g., booking), a separate transaction module is used.
 
-### ⚠️ Limitations
 
-* No support for special requests (e.g., "window seat"), but suggests from existing features that are available
+---
+### Future Enhancements:
 
-### 🔮 Future Enhancements
+* Expand the system to allow for multi-day reservations.
+* Also add table preferences to choose(eg. beside window,private space).
+* Add features like user authentication, personalized recommendations, and more sophisticated handling of party sizes and table combinations.
+
+### 🔮 Future Enhancements in deployment
 
 * ✅ Date picker and calendar integration
 * 📲 SMS/WhatsApp confirmation with reservation ID
@@ -328,6 +354,82 @@ Restaurants often struggle with fragmented booking systems, no-shows, and poor c
 * 🔌 API-first backend to support mobile and kiosk interfaces
 
 ---
+
+
+
+## 📎 File Structure
+
+```
+├── app.py
+├── tools.py
+├── var.py
+├── requirements.txt
+├── prompts/
+│   ├── determine_intent.txt
+│   ├── generate_reservation_conversation.txt
+│   ├── interpret_sql_result.txt
+│   ├── schema_prompt.txt
+│   └── store_user_info.txt
+├── db/
+│   └── restaurant_reservation.db
+└── README.md
+```
+
+### Explanation of Each File
+
+#### 1. **`app.py`**
+
+* The main application file that drives the restaurant reservation system.
+* Handles user input, coordinates prompt usage, calls functional tools, executes SQL queries, and returns conversational responses.
+* Acts as the central orchestrator between all components.
+
+#### 2. **`tools.py`**
+
+* Contains core utility functions used throughout the system.
+* Includes logic for:
+
+  * Determining user intent
+  * Storing and updating user information
+  * Generating reservation-related conversations
+  * Creating and interpreting SQL queries
+* Serves as the modular backend logic layer for reusable operations.
+
+#### 3. **`var.py`**
+
+* Defines classes and configuration variables.
+* Includes:
+
+  * `SchemaVectorDB`: for handling schema-related semantic search
+  * `FullVectorDB`: for broader retrieval tasks using vector similarity
+* Facilitates integration of ChromaDB and semantic retrieval workflows.
+
+#### 4. **`prompts/` Folder**
+
+Stores prompt templates that guide the behavior of the language model (LLM):
+
+* **`determine_intent.txt`**:
+  Prompt for classifying user messages into intents like `greet`, `select`, `book`, or irrelevant.
+
+* **`generate_reservation_conversation.txt`**:
+  Handles multi-turn interactions to collect user details and guide reservations.
+
+* **`interpret_sql_result.txt`**:
+  Formats raw SQL query results into natural-sounding responses.
+
+* **`schema_prompt.txt`**:
+  Describes the SQLite database schema and provides rules for query generation.
+
+* **`store_user_info.txt`**:
+  Extracts and stores user details like name, contact info, party size, and reservation time.
+
+#### 5. **`db/` Folder**
+
+* Contains the SQLite database (`restaurant_reservation.db`) with all restaurant, table, and reservation information.
+* Used to run SQL queries for booking and retrieving restaurant details.
+
+---
+
+
 
 ## 📊 Vertical Expansion
 
@@ -371,85 +473,9 @@ Reservation actions like INSERT or UPDATE are handled securely in a separate log
 
 ---
 
-## 📎 File Structure
-
-```
-├── app.py
-├── requirements.txt
-├── prompts/
-│   ├── determine_intent.txt
-│   ├── generate_reservation_conversation.txt
-│   ├── interpret_sql_result.txt
-│   ├── schema_prompt.txt
-│   └── store_user_info.txt
-├── db/
-│   └── restaurant_reservation.db
-└── README.md
-```
-
-### Explanation of Each File
-
-#### 1. **`app.py`**
-
-* The main application file that serves as the backend logic for the restaurant reservation system.
-* This file handles user input, determines the intent of the user, interacts with the database, and generates responses based on pre-defined prompts.
-* It is responsible for orchestrating the interaction between the user, the database, and the various models or prompt files.
-
-#### 2. **`prompts/` Folder**
-
-The `prompts/` folder contains text files that define various parts of the restaurant reservation assistant's behavior and logic.
-
-* **`determine_intent.txt`**:
-
-  * Contains the prompt for determining the user's intent (e.g., whether the user is asking about restaurant availability, making a reservation, or asking for restaurant information).
-  * Helps the system classify the user's input into specific intents (e.g., "greet", "select", "book","rubbish").
-
-* **`generate_reservation_conversation.txt`**:
-
-  * Defines the conversation logic when generating responses related to reservations.
-  * Includes instructions for collecting necessary reservation details (e.g., name, party size, contact info, etc.) and handling different user interactions.
-  * Used to guide the assistant's conversation flow and to extract or confirm user data for reservations.
-
-* **`interpret_sql_result.txt`**:
-
-  * Contains the prompt for interpreting the results of SQL queries executed on the database.
-  * Used to process the output from SQL queries (such as availability of tables, restaurant features, etc.) and format the result for the assistant to present to the user.
-
-* **`schema_prompt.txt`**:
-
-  * Defines the schema of the restaurant reservation system’s database and serves as a guide to interact with it.
-  * Contains detailed instructions for how the assistant should create database queries and interpret the structure of data stored in the system.
-
-* **`store_user_info.txt`**:
-
-  * Contains the prompt for extracting and storing user information such as name, contact, party size, and time of reservation.
-  * Helps the assistant gather and update relevant details for a reservation, ensuring data is correctly collected and stored.
-
-#### 3. **`db/` Folder**
-
-The `db/` folder contains the SQLite database that stores all the relevant information for the restaurant reservation system.
 
 
 
-### Assumptions:
-* There is a hardcoded 4-person table capacity, so the system itself selects multiple tables that are available at that time.
-* Reservation slots are fixed to **2025-05-12**, and all reservations are for this date.
----
-### ⚠️ Limitations:
-
-* The system currently supports reservations only for a fixed date (2025-05-12). This could be extended to multi-day support by adding appropriate entries to the database.
-* Since the system relies on Large Language Models (LLMs), there's **no absolute guarantee of perfect behavior**—LLMs can occasionally misinterpret queries, miss context, or produce inaccurate outputs.
-* **Table preferences cannot be specified** by the user. The system auto-assigns tables based on availability, so users cannot choose specific table locations (e.g., window-side, outdoor, etc.).
-* Only **select queries** are executed directly by the LLM to ensure **data safety**. For insert/update operations (e.g., booking), a separate transaction module is used.
-
-
----
-### Future Enhancements:
-
-* Expand the system to allow for multi-day reservations.
-* Also add table preferences to choose(eg. beside window,private space).
-* Add features like user authentication, personalized recommendations, and more sophisticated handling of party sizes and table combinations.
 
 
 
----

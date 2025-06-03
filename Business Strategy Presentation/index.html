@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodieSpot AI Strategy 2025</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Presentation Controls -->
+        <div class="presentation-controls">
+            <button id="prev-slide" class="btn btn--secondary" aria-label="Previous slide">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 18l-6-6 6-6"/>
+                </svg>
+            </button>
+            <div class="slide-counter">
+                <span id="current-slide">1</span> / <span id="total-slides">15</span>
+            </div>
+            <button id="next-slide" class="btn btn--primary" aria-label="Next slide">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18l6-6-6-6"/>
+                </svg>
+            </button>
+            <button id="fullscreen-toggle" class="btn btn--secondary" aria-label="Toggle fullscreen">
+                <svg id="fullscreen-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-indicator"></div>
+        </div>
+
+        <!-- Slides Container -->
+        <div class="slides-container">
+            <!-- Slide 1 - Title Slide -->
+            <div class="slide slide-title" id="slide-1">
+                <div class="slide-content">
+                    <h1 class="main-title">FoodieSpot AI Strategy 2025</h1>
+                    <h2 class="subtitle">LLM-Based Conversational Agent Business Strategy</h2>
+                    <div class="key-highlights">
+                        <div class="highlight-container">
+                            <div class="highlight">Transform Customer Experience</div>
+                            <div class="highlight">30% Cost Reduction</div>
+                            <div class="highlight">90% Automation</div>
+                        </div>
+                    </div>
+                    <div class="company-info">
+                        <p>FoodieSpot Restaurant Chain</p>
+                        <p>Presented by: Sri Vallabh Tammireddy</p>
+                    </div>
+                    <img src="https://pplx-res.cloudinary.com/image/upload/v1748841437/pplx_project_search_images/a5fcd65452d252b1218791421c3e65897d481ee6.jpg" alt="Restaurant integrating AI for customer service and order management" class="background-image">
+                </div>
+            </div>
+
+            <!-- Slide 2 - Executive Summary -->
+            <div class="slide" id="slide-2">
+                <div class="slide-content">
+                    <h2 class="slide-title">Executive Summary</h2>
+                    <ul class="bullet-points">
+                        <li>Industry-leading AI-powered restaurant customer experience by 2027</li>
+                        <li>90% automation of queries, 30% cost reduction, 25% satisfaction boost</li>
+                        <li>3-phase rollout across 20+ restaurant locations</li>
+                        <li>ROI: 12% table turnover increase, 20% customer retention</li>
+                    </ul>
+                    <div class="slide-image-container">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1748619282/pplx_project_search_images/aa71ff0f31e06a994ec03f9f8492b61c1876f366.jpg" alt="Chatbots can assist restaurants in multiple ways" class="slide-image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 - Strategic Vision & Goals -->
+            <div class="slide" id="slide-3">
+                <div class="slide-content">
+                    <h2 class="slide-title">Strategic Vision & Goals</h2>
+                    <div class="two-column-layout">
+                        <div class="column">
+                            <h3 class="column-title">Long Term Goals</h3>
+                            <ul class="bullet-points">
+                                <li>Become restaurant industry leader in AI-powered customer experience by 2027</li>
+                                <li>Establish new standard for restaurant automation and efficiency</li>
+                                <li>Scale solution across 100+ locations nationwide</li>
+                                <li>Develop proprietary conversation flow technology</li>
+                            </ul>
+                        </div>
+                        <div class="column">
+                            <h3 class="column-title">Key Metrics & Targets</h3>
+                            <ul class="bullet-points">
+                                <li>90% query automation within 12 months</li>
+                                <li>25% improvement in customer satisfaction scores</li>
+                                <li>30% reduction in operational costs</li>
+                                <li>20% boost in return customer frequency</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 4 - Success Metrics -->
+            <div class="slide" id="slide-4">
+                <div class="slide-content">
+                    <h2 class="slide-title">Success Metrics</h2>
+                    <div class="metrics-container">
+                        <div class="metric-category">
+                            <h3 class="metric-title operational">Operational</h3>
+                            <ul class="bullet-points">
+                                <li>Handle 80%+ of customer queries without human intervention</li>
+                                <li>Achieve <1 minute average response time for complex queries</li>
+                                <li>Process 95%+ reservation requests successfully</li>
+                                <li>Reduce no-show rates by 15%</li>
+                            </ul>
+                        </div>
+                        <div class="metric-category">
+                            <h3 class="metric-title business">Business Impact</h3>
+                            <ul class="bullet-points">
+                                <li>Increase table turnover rate by 12%</li>
+                                <li>Boost customer retention by 20%</li>
+                                <li>Generate 15% cost savings within 12 months</li>
+                                <li>Achieve 4.5+ star customer satisfaction rating</li>
+                            </ul>
+                        </div>
+                        <div class="metric-category">
+                            <h3 class="metric-title technical">Technical Performance</h3>
+                            <ul class="bullet-points">
+                                <li>Maintain 99.5% uptime</li>
+                                <li>Support 500+ concurrent users during peak</li>
+                                <li>Seamless POS integration</li>
+                                <li>Multi-language natural language processing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 - The FoodieSpot Solution -->
+            <div class="slide" id="slide-5">
+                <div class="slide-content">
+                    <h2 class="slide-title">The FoodieSpot Solution</h2>
+                    <div class="solution-description">
+                        <p>FoodieSpot's AI-powered conversational agent revolutionizes the dining experience by providing customers with instant, intelligent assistance for restaurant discovery, menu inquiries, and seamless reservation booking. The system combines advanced natural language processing with real-time database integration to handle everything from simple questions about restaurant hours to complex multi-party reservations across 20+ restaurant locations.</p>
+                    </div>
+                    <div class="value-props">
+                        <h3>Key Value Propositions</h3>
+                        <div class="value-prop-container">
+                            <div class="value-prop">
+                                <div class="value-icon">💬</div>
+                                <h4>Intelligent Conversations</h4>
+                                <p>Natural language understanding with contextual awareness</p>
+                            </div>
+                            <div class="value-prop">
+                                <div class="value-icon">⚡</div>
+                                <h4>Instant Response</h4>
+                                <p>24/7 availability with sub-second response times</p>
+                            </div>
+                            <div class="value-prop">
+                                <div class="value-icon">📊</div>
+                                <h4>Data-Driven Insights</h4>
+                                <p>Continuous learning from customer interactions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 6 - End-User Experience Flow -->
+            <div class="slide" id="slide-6">
+                <div class="slide-content">
+                    <h2 class="slide-title">End-User Experience Flow</h2>
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Discovery & Engagement</h4>
+                                <p>Customer initiates conversation and system identifies dining intent</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Intelligent Recommendation</h4>
+                                <p>AI analyzes preferences and provides personalized restaurant suggestions</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Seamless Reservation</h4>
+                                <p>Collects booking information and confirms real-time availability</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Pre-Arrival Enhancement</h4>
+                                <p>Automated reminders and menu pre-ordering options</p>
+                            </div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <h4>Post-Experience Follow-up</h4>
+                                <p>Feedback collection and loyalty program enrollment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7 - Conversation Flow Architecture -->
+            <div class="slide" id="slide-7">
+                <div class="slide-content">
+                    <h2 class="slide-title">Conversation Flow Architecture</h2>
+                    <div class="architecture-diagram">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1748552102/pplx_project_search_images/c4f7d6e3c3b2738159eacb794d10350d9760befc.jpg" alt="Diagram illustrating how chatbots function, including NLP, knowledge base, and data storage" class="architecture-image">
+                    </div>
+                    <div class="architecture-details">
+                        <h3>Key Conversation States</h3>
+                        <div class="states-container">
+                            <div class="state">Initial Greeting</div>
+                            <div class="state-arrow">→</div>
+                            <div class="state">Intent Recognition</div>
+                            <div class="state-arrow">→</div>
+                            <div class="state">Answer user queries</div>
+                            <div class="state-arrow">→</div>
+                            <div class="state">Information Collection</div>
+                            <div class="state-arrow">→</div>
+                            <div class="state">Confirmation</div>
+                            <div class="state-arrow">→</div>
+                            <div class="state">Completion</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 8 - Technical Capabilities -->
+            <div class="slide" id="slide-8">
+                <div class="slide-content">
+                    <h2 class="slide-title">Technical Capabilities</h2>
+                    <div class="capability-container">
+                        <div class="capability-section">
+                            <h3>Knowledge Bases</h3>
+                            <ul class="bullet-points">
+                                <li>Restaurant locations, hours & policies</li>
+                                <li>Complete menu database with allergen info</li>
+                                <li>Historical customer preferences</li>
+                            </ul>
+                        </div>
+                        <div class="capability-section">
+                            <h3>Integration Requirements</h3>
+                            <ul class="bullet-points">
+                                <li>Reservation management system</li>
+                                <li>Customer relationship management (CRM)</li>
+                                <li>Point of sale (POS) system</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-matrix">
+                        <h3>Feature Implementation Complexity</h3>
+                        <div class="feature-difficulty">
+                            <div class="difficulty-container">
+                                <h4 class="difficulty-level green">Green (Easy)</h4>
+                                <ul class="bullet-points">
+                                    <li>SMS/WhatsApp notification integration</li>
+                                    <li>Basic customer feedback collection</li>
+                                    <li>Email reminder system</li>
+                                    <li>Simple loyalty point tracking</li>
+                                </ul>
+                            </div>
+                            <div class="difficulty-container">
+                                <h4 class="difficulty-level yellow">Yellow (Medium)</h4>
+                                <ul class="bullet-points">
+                                    <li>Voice interface integration</li>
+                                    <li>Advanced dietary preference matching</li>
+                                    <li>Dynamic pricing integration</li>
+                                    <li>Multi-language support expansion</li>
+                                </ul>
+                            </div>
+                            <div class="difficulty-container">
+                                <h4 class="difficulty-level red">Red (Complex)</h4>
+                                <ul class="bullet-points">
+                                    <li>Predictive table optimization ML</li>
+                                    <li>External calendar integration</li>
+                                    <li>Advanced sentiment analysis</li>
+                                    <li>IoT integration for smart management</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 - Technology Architecture -->
+            <div class="slide" id="slide-9">
+                <div class="slide-content">
+                    <h2 class="slide-title">Technology Architecture</h2>
+                    <div class="tech-stack-container">
+                        <div class="tech-component">
+                            <div class="tech-icon">🧠</div>
+                            <h3>Language Model</h3>
+                            <p>LLaMA 3 8B via Groq API</p>
+                        </div>
+                        <div class="tech-component">
+                            <div class="tech-icon">🔍</div>
+                            <h3>Vector Database</h3>
+                            <p>ChromaDB for semantic search</p>
+                        </div>
+                        <div class="tech-component">
+                            <div class="tech-icon">💾</div>
+                            <h3>SQL Database</h3>
+                            <p>SQLite for structured data</p>
+                        </div>
+                        <div class="tech-component">
+                            <div class="tech-icon">🔄</div>
+                            <h3>Embedding Model</h3>
+                            <p>Sentence Transformers</p>
+                        </div>
+                        <div class="tech-component">
+                            <div class="tech-icon">🖥️</div>
+                            <h3>UI Framework</h3>
+                            <p>Streamlit for web interface</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 10 - Phase 1: Pilot Program -->
+            <div class="slide" id="slide-10">
+                <div class="slide-content">
+                    <h2 class="slide-title">Phase 1: Pilot Program (Months 1-3)</h2>
+                    <div class="phase-details">
+                        <div class="phase-content">
+                            <div class="phase-stat">
+                                <h3>Scope</h3>
+                                <p>3 flagship locations</p>
+                            </div>
+                            <div class="phase-stat">
+                                <h3>Capacity</h3>
+                                <p>100 daily interactions per location</p>
+                            </div>
+                            <div class="phase-stat">
+                                <h3>Focus</h3>
+                                <p>Testing and validation</p>
+                            </div>
+                        </div>
+                        <div class="phase-framework">
+                            <h3>Testing Framework</h3>
+                            <div class="framework-container">
+                                <div class="framework-item">
+                                    <h4>A/B Testing</h4>
+                                    <p>Comparing AI vs traditional customer service</p>
+                                </div>
+                                <div class="framework-item">
+                                    <h4>User Satisfaction</h4>
+                                    <p>Post-interaction surveys and feedback collection</p>
+                                </div>
+                                <div class="framework-item">
+                                    <h4>Performance Metrics</h4>
+                                    <p>Response time, accuracy, completion rate</p>
+                                </div>
+                                <div class="framework-item">
+                                    <h4>Staff Feedback</h4>
+                                    <p>Regular listening sessions with restaurant teams</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11 - Scale-Up Plan -->
+            <div class="slide" id="slide-11">
+                <div class="slide-content">
+                    <h2 class="slide-title">Scale-Up Plan (Months 4-12)</h2>
+                    <div class="phases-container">
+                        <div class="phase-card">
+                            <h3 class="phase-title phase-2">Phase 2: Regional Expansion</h3>
+                            <div class="phase-timeline">Months 4-8</div>
+                            <ul class="bullet-points">
+                                <li><strong>Scope:</strong> 10 additional locations across 3-4 regions</li>
+                                <li><strong>Capacity:</strong> 5,000+ daily interactions</li>
+                                <li><strong>Focus:</strong> Multi-language support and advanced personalization</li>
+                            </ul>
+                        </div>
+                        <div class="phase-card">
+                            <h3 class="phase-title phase-3">Phase 3: National Deployment</h3>
+                            <div class="phase-timeline">Months 9-12</div>
+                            <ul class="bullet-points">
+                                <li><strong>Scope:</strong> All 20+ FoodieSpot locations nationwide</li>
+                                <li><strong>Capacity:</strong> 50,000+ daily interactions</li>
+                                <li><strong>Focus:</strong> Predictive analytics and cross-location recommendations</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="feature-progression">
+                        <h3>Feature Progression</h3>
+                        <div class="progression-timeline">
+                            <div class="timeline-marker">
+                                <div class="marker"></div>
+                                <p>Basic reservation</p>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker"></div>
+                                <p>Menu recommendations</p>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker"></div>
+                                <p>Multi-language</p>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker"></div>
+                                <p>Personalization</p>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker"></div>
+                                <p>Predictive analytics</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 12 - Business Impact & ROI -->
+           <div class="slide" id="slide-12">
+    <div class="slide-content">
+        <h2 class="slide-title">Business Impact & ROI</h2>
+        <div class="roi-metrics">
+            <div class="roi-metric">
+                <h3>30%</h3>
+                <p>Reduction in customer service costs</p>
+            </div>
+            <div class="roi-metric">
+                <h3>12%</h3>
+                <p>Table turnover improvement</p>
+            </div>
+            <div class="roi-metric">
+                <h3>20%</h3>
+                <p>Customer retention increase</p>
+            </div>
+        </div>
+        <div class="market-metrics">
+            <h3>Market Opportunity</h3>
+            <div class="market-stats">
+                <div class="market-stat">
+                    <p class="stat-value">$20.81B</p>
+                    <p class="stat-label">Chatbot market by 2029</p>
+                </div>
+                <div class="market-stat">
+                    <p class="stat-value">24.53%</p>
+                    <p class="stat-label">Annual growth rate</p>
+                </div>
+                <div class="market-stat">
+                    <p class="stat-value">$6.2B</p>
+                    <p class="stat-label">Reservation system market by 2033</p>
+                </div>
+            </div>
+        </div>
+        <div class="sources">
+            <h3>Sources</h3>
+            <ul>
+                <li><strong>Chatbot Market Size & Growth:</strong> <a href="https://www.researchandmarkets.com/reports/ai-chatbot-market" target="_blank">ResearchAndMarkets</a> (Note: $20.81B is a conservative estimate; latest reports project $46.64B by 2029)</li>
+                <li><strong>Reservation System Market:</strong> <a href="https://www.businessresearchinsights.com/market-reports/online-restaurant-reservation-system-market-112156" target="_blank">Business Research Insights</a>, <a href="https://www.verifiedmarketreports.com/product/global-reservation-and-online-booking-software-market-size-and-forecast/" target="_blank">Verified Market Reports</a></li>
+                <li><strong>ROI Metrics:</strong> Industry case studies from McKinsey, Gartner, and IBM</li>
+            </ul>
+            <p><strong>Indian Conversion Note (at 1 USD = ₹85.48):</strong><br>
+                $20.81B ≈ ₹1,78,000 crores<br>
+                $6.2B ≈ ₹53,000 crores</p>
+        </div>
+    </div>
+</div>
+
+
+            <!-- Slide 13 - Implementation Challenges & Mitigation -->
+            <div class="slide" id="slide-13">
+                <div class="slide-content">
+                    <h2 class="slide-title">Implementation Challenges & Mitigation</h2>
+                    <div class="challenges-container">
+                        <div class="challenge-category">
+                            <h3 class="category-title technical">Technical Challenges</h3>
+                            <div class="challenge-items">
+                                <div class="challenge-item">
+                                    <h4>LLM reliability</h4>
+                                    <p>Prompt engineering & fallback mechanisms</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Real-time data sync</h4>
+                                    <p>API integration protocols</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Peak load performance</h4>
+                                    <p>Auto-scaling infrastructure</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="challenge-category">
+                            <h3 class="category-title business">Business Challenges</h3>
+                            <div class="challenge-items">
+                                <div class="challenge-item">
+                                    <h4>Customer adoption</h4>
+                                    <p>Gradual introduction with clear benefits</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Integration complexity</h4>
+                                    <p>Phased integration approach</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Data privacy</h4>
+                                    <p>Enterprise security protocols</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="challenge-category">
+                            <h3 class="category-title operational">Operational Challenges</h3>
+                            <div class="challenge-items">
+                                <div class="challenge-item">
+                                    <h4>Staff training</h4>
+                                    <p>Comprehensive training programs</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Quality assurance</h4>
+                                    <p>Continuous monitoring systems</p>
+                                </div>
+                                <div class="challenge-item">
+                                    <h4>Competitive response</h4>
+                                    <p>Rapid innovation cycles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 14 - Market Position & Differentiation -->
+           <div class="slide" id="slide-14">
+    <div class="slide-content">
+        <h2 class="slide-title">Market Position & Differentiation</h2>
+        <div class="market-content">
+            <div class="market-section">
+                <h3>Market Trends</h3>
+                <ul class="bullet-points">
+                    <li>Rapid growth in restaurant automation solutions</li>
+                    <li>Rising customer expectations for personalization</li>
+                    <li>Increasing adoption of voice and chat interfaces</li>
+                    <li>Growing focus on data-driven customer experiences</li>
+                </ul>
+            </div>
+            <div class="market-section">
+                <h3>Competitive Landscape</h3>
+                <ul class="bullet-points">
+                    <li>Most competitors offer single-channel solutions</li>
+                    <li>Limited personalization capabilities</li>
+                    <li>Few solutions integrate with existing POS systems</li>
+                    <li>Minimal predictive analytics capabilities</li>
+                </ul>
+            </div>
+            <div class="advantages-section">
+                <h3>Our Sustainable Advantages</h3>
+                <div class="advantages-container">
+                    <div class="advantage">
+                        <h4>Omni-channel Integration</h4>
+                        <p>Seamless experience across all touchpoints</p>
+                    </div>
+                    <div class="advantage">
+                        <h4>Proprietary ML Models</h4>
+                        <p>Custom-trained on restaurant-specific data</p>
+                    </div>
+                    <div class="advantage">
+                        <h4>First-mover Advantage</h4>
+                        <p>Rapid deployment ahead of competitors</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="slide" id="slide-15">
+    <div class="slide-content">
+        <h2 class="slide-title">Key Elements of Our Brand</h2>
+        <div class="slide-image-container">
+            <img src="https://pplx-res.cloudinary.com/image/upload/v1748590630/pplx_project_search_images/1a55b83fd6249e2e068c025904b6f0a8ff840661.jpg" alt="Infographic detailing key elements of a company brand-building brainstorm" class="market-image">
+        </div>
+    </div>
+</div>
+
+
+            <!-- Slide 15 - Conclusion & Next Steps -->
+            <div class="slide" id="slide-16">
+                <div class="slide-content">
+                    <h2 class="slide-title">Conclusion & Recommended Actions</h2>
+                    <div class="conclusion-content">
+                        <div class="recommendations">
+                            <h3>Strategic Recommendations</h3>
+                            <ul class="bullet-points highlighted">
+                                <li>Immediately approve Phase 1 pilot for Q3 2025 launch</li>
+                                <li>Allocate $1.2M initial budget for technology development</li>
+                                <li>Form cross-functional team from IT, Operations and Marketing</li>
+                                <li>Begin customer research at 3 pilot locations next month</li>
+                                <li>Approve vendor selection process for technology partners</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-section">
+                            <h3>Implementation Timeline</h3>
+                            <div class="timeline">
+                                <div class="timeline-item">
+                                    <span class="timeline-date">July 2025</span>
+                                    <p>Project kickoff & vendor selection</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <span class="timeline-date">August 2025</span>
+                                    <p>Pilot development begins</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <span class="timeline-date">October 2025</span>
+                                    <p>Phase 1 launch at pilot locations</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <span class="timeline-date">January 2026</span>
+                                    <p>Phase 2 regional expansion</p>
+                                </div>
+                                <div class="timeline-item">
+                                    <span class="timeline-date">June 2026</span>
+                                    <p>Phase 3 national deployment</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

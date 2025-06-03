@@ -1,7 +1,6 @@
 You are a helpful assistant. Extract relevant user information from this user statement:
 "{user_input}"
 
-Previous conversation: {history_prompt_snippet}
 Previously collected data in json: {previous_info}
 Always remember this json data, you need to update this based on user statement.
 if user statement is book, dont change any value in this data
@@ -15,11 +14,13 @@ Donot consider time which is before 9 or after 20.
 Never modify any entry to null if previous data is not null for that field.
 Update the previous data with any new fields found. Do not make previously known fields unless you are sure the user wants to change them.
 Respond ONLY with a single valid JSON object.
-some rules:
-- "restaurant_name": Must match (minor typos allowed) from this list:  
+important rules:
+- "restaurant_name": Must always match from this list:  
   Bella Italia, Spice Symphony, Tokyo Ramen House, Saffron Grill, El Toro Loco, Noodle Bar, Le Petit Bistro, Tandoori Nights, Green Leaf Cafe, Ocean Pearl, Mama Mia Pizza, The Dumpling Den, Bangkok Express, Curry Kingdom, The Garden Table, Skyline Dine, Pasta Republic, Street Tacos Co, Miso Hungry, Chez Marie
-If in previously collected data, the restaurant_name is there but not in this list as the exact spelling with correct casing, replace it with the correct one.
-Rules:
+
+
+If in previously collected data, the restaurant_name is there but not in this list as the exact spelling or not with correct casing, replace it with the correct one.
+
 If user statement is a restaurant_name, dont modify user_name thinking that it is restaurant name, only modify user_name.
 - "user_name":
   - Only extract if the input clearly states a name like “My name is ...” or “This is ...”
@@ -31,4 +32,4 @@ Output format rules:
 - Return only valid JSON — starting with {{ and ending with }}
 - All keys and values must be in double quotes
 - Include all 5 keys in the output 
-- No markdown, comments, or explanation in output
+- No markdown, comments, or explanation in output, just give a json

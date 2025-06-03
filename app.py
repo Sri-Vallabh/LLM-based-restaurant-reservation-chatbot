@@ -5,8 +5,17 @@ import pandas as pd
 import re
 import json
 from sticky import sticky_container
+import chromadb
+from sentence_transformers import SentenceTransformer
+from transformers import pipeline
+import hashlib
+import inspect
+from tools import *
+from var import SCHEMA_DESCRIPTIONS, SchemaVectorDB, FullVectorDB
+
+
 # Set your Groq API key
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "Your API Key Here"
 
 # Initialize Groq's OpenAI-compatible client
 client = OpenAI(
@@ -30,208 +39,7 @@ with open("prompts/schema_prompt.txt", "r", encoding="utf-8") as f:
 with open("prompts/store_user_info.txt", "r", encoding="utf-8") as f:
     store_user_info_prompt = f.read()
 
-# Function to query the SQLite database
-def execute_query(sql_query):
-    query_conn = None
-    try:
-        query_conn = sqlite3.connect("db/restaurant_reservation.db")
-        cursor = query_conn.cursor()
-        cursor.execute(sql_query)
-        rows = cursor.fetchall()
-        columns = [desc[0] for desc in cursor.description] if cursor.description else []
-        return pd.DataFrame(rows, columns=columns)
-    except Exception as e:
-        return f"❌ Error executing query: {e}"
-    finally:
-        if query_conn:
-            query_conn.close()
 
-    
-def execute_transaction(sql_statements):
-    txn_conn = None
-    try:
-        txn_conn = sqlite3.connect("db/restaurant_reservation.db")
-        cursor = txn_conn.cursor()
-        for stmt in sql_statements:
-            cursor.execute(stmt)
-        txn_conn.commit()
-        return "✅ Booking Executed"
-    except Exception as e:
-        if txn_conn:
-            txn_conn.rollback()
-        return f"❌ Booking failed: {e}"
-    finally:
-        if txn_conn:
-            txn_conn.close()
-
-
-
-import inspect
-
-def log_groq_token_usage(response, prompt=None, function_name=None, filename="efficiency_log.txt"):
-    usage = response.usage
-    log_message = (
-        f"Function: {function_name or 'unknown'}\n"
-        f"Prompt tokens: {usage.prompt_tokens}\n"
-        f"Completion tokens: {usage.completion_tokens}\n"
-        f"Total tokens: {usage.total_tokens}\n"
-        f"Prompt: {prompt}\n"
-        "---\n"
-    )
-    # print(log_message)
-    # Fix: Add encoding="utf-8" here ▼
-    with open(filename, "a", encoding="utf-8") as f:  # ← THIS LINE
-        f.write(log_message)
-
-
-
-
-def interpret_sql_result(user_query, sql_query, result):
-    if isinstance(result, pd.DataFrame):
-        # Convert DataFrame to list of dicts
-        result_dict = result.to_dict(orient="records")
-    else:
-        # Fall back to raw string if not a DataFrame
-        result_dict = result
-
-    prompt = interpret_sql_result_prompt.format(
-        user_query=user_query,
-        sql_query=sql_query,
-        result_str=json.dumps(result_dict, indent=2)  # Pass as formatted JSON string
-    )
-    
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {"role": "system", "content": "You summarize database query results for a restaurant reservation assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
-    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
-    return response.choices[0].message.content.strip()
-def generate_reservation_conversation(user_query, history_prompt, sql_summary, user_data):
-    words = history_prompt.split() if history_prompt else []
-    if len(words) > 25:
-        history_prompt_snippet = " ".join(words[:15]) + " ... " + " ".join(words[-10:])
-    else:
-        history_prompt_snippet = " ".join(words)
-
-    # Serialize user_data as pretty JSON for readability in prompt
-    user_data_json = json.dumps(user_data, indent=2)
-
-    prompt = generate_reservation_conversation_prompt.format(
-        user_query=user_query,
-        user_data=user_data_json,
-        sql_summary=sql_summary,
-        history_prompt_snippet=history_prompt_snippet
-    )
-
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {"role": "system", "content": "You are a helpful restaurant reservation assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.4
-    )
-
-    if not response.choices:
-        return "Sorry, I couldn't generate a response right now."
-    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
-
-    return response.choices[0].message.content.strip()
-
- 
-# --- Helper Functions ---
-
-def determine_intent(user_input):
-    prompt = determine_intent_prompt.format(user_input=user_input)
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {"role": "system", "content": "Classify user intent into SELECT, STORE, BOOK, GREET, or RUBBISH based on message content."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0
-    )
-    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
-    return response.choices[0].message.content.strip().upper()
-
-
-
-def store_user_info(user_input,history_prompt):
-    words = history_prompt.split()
-    if len(words) > 25:
-        history_prompt_snippet = " ".join(words[:15]) + " ... " + " ".join(words[-10:])
-    else:
-        history_prompt_snippet = " ".join(words)
-    previous_info = json.dumps(st.session_state.user_data)
-    # st.json(previous_info)
-    prompt = store_user_info_prompt.format(previous_info=previous_info,user_input=user_input,history_prompt_snippet=history_prompt_snippet)
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[{"role": "system", "content": "Extract or update user booking info in JSON."},
-                  {"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
-
-    try:
-        # Print raw LLM output for inspection
-        raw_output = response.choices[0].message.content
-        # st.subheader("🧠 Raw LLM Response")
-        # st.write(raw_output)
-
-        # Extract JSON substring from anywhere in the response
-        json_match = re.search(r'{[\s\S]*?}', raw_output)
-        if not json_match:
-            raise ValueError("No JSON object found in response.")
-
-        json_str = json_match.group()
-
-        # Show the extracted JSON string
-        # st.subheader("📦 Extracted JSON String")
-        # st.code(json_str, language="json")
-
-        # Safely parse using json.loads
-        parsed = json.loads(json_str)
-
-        # Display the parsed result
-        # st.subheader("✅ Parsed JSON Object")
-        # st.json(parsed)
-
-        return parsed
-
-    except Exception as e:
-        st.error(f"⚠️ Failed to parse JSON: {e}")
-        return {}
-    
-def generate_sql_query(user_input,restaurant_name,party_size,time, history_prompt, schema_prompt, client):
-    words = history_prompt.split()
-    if len(words) > 25:
-        history_prompt_snippet = " ".join(words[:15]) + " ... " + " ".join(words[-10:])
-    else:
-        history_prompt_snippet = " ".join(words)
-    prompt = schema_prompt.format(
-        history_prompt=history_prompt,
-        user_input=user_input
-    )
-
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that only returns SQL queries."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.3
-    )
-    log_groq_token_usage(response,prompt, function_name=inspect.currentframe().f_code.co_name)
-    raw_sql = response.choices[0].message.content.strip()
-    extracted_sql = re.findall(r"(SELECT[\s\S]+?)(?:;|$)", raw_sql, re.IGNORECASE)
-    sql_query = extracted_sql[0].strip() + ";" if extracted_sql else raw_sql
-       
-    return sql_query
 
 st.set_page_config(page_title="FoodieSpot Assistant", layout="wide")
 
@@ -248,6 +56,11 @@ if 'user_data' not in st.session_state:
         "party_size": None,
         "time": None
     }
+if 'vector_db' not in st.session_state:
+    st.session_state.vector_db = SchemaVectorDB()
+vector_db = st.session_state.vector_db
+if 'full_vector_db' not in st.session_state:
+    st.session_state.full_vector_db = FullVectorDB()
 # Track last assistant reply for context
 if 'last_assistant_reply' not in st.session_state:
     st.session_state.last_assistant_reply = ""
@@ -375,7 +188,7 @@ with reservation_box:
                 )
 
                 st.success(confirmation_msg)
-                st.session_state.chat_history.append({'role': 'assistant', 'message': follow_up})
+                st.session_state.chat_history.append({'role': 'assistant', 'message': confirmation_msg})
                 st.session_state.user_data["restaurant_name"] = None
                 st.session_state.user_data["party_size"] = None
                 st.session_state.user_data["time"] = None
@@ -391,62 +204,79 @@ with reservation_box:
         else:
             st.warning("⚠️ Missing user information. Please provide all booking details first.")
     st.text("")
-with st.container():
-    st.markdown("### 📋 Available Restaurants and Features")
+   # Inject custom CSS for smaller font and tighter layout
+    st.markdown("""
+        <style>
+        .element-container:has(.streamlit-expander) {
+            margin-bottom: 0.5rem;
+        }
+        .streamlit-expanderHeader {
+            font-size: 0.9rem;
+        }
+        .streamlit-expanderContent {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns(3)
+    with st.container():
+        col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.markdown("#### 🍽️ Restaurants")
-        st.markdown("""
-        - Bella Italia  
-        - Spice Symphony  
-        - Tokyo Ramen House  
-        - Saffron Grill  
-        - El Toro Loco  
-        - Noodle Bar  
-        - Le Petit Bistro  
-        - Tandoori Nights  
-        - Green Leaf Cafe  
-        - Ocean Pearl  
-        - Mama Mia Pizza  
-        - The Dumpling Den  
-        - Bangkok Express  
-        - Curry Kingdom  
-        - The Garden Table  
-        - Skyline Dine  
-        - Pasta Republic  
-        - Street Tacos Co 
-        - Miso Hungry  
-        - Chez Marie
-        """)
+        with col1:
+            with st.expander("🍽️ Restaurants"):
+                st.markdown("""
+                - Bella Italia  
+                - Spice Symphony  
+                - Tokyo Ramen House  
+                - Saffron Grill  
+                - El Toro Loco  
+                - Noodle Bar  
+                - Le Petit Bistro  
+                - Tandoori Nights  
+                - Green Leaf Cafe  
+                - Ocean Pearl  
+                - Mama Mia Pizza  
+                - The Dumpling Den  
+                - Bangkok Express  
+                - Curry Kingdom  
+                - The Garden Table  
+                - Skyline Dine  
+                - Pasta Republic  
+                - Street Tacos Co  
+                - Miso Hungry  
+                - Chez Marie
+                """)
 
-    with col2:
-        st.markdown("#### 🌎 Cuisines")
-        st.markdown("""
-        - Italian  
-        - French  
-        - Chinese  
-        - Japanese  
-        - Indian  
-        - Mexican  
-        - Thai  
-        - Healthy  
-        - Fusion
-        """)
+        with col2:
+            with st.expander("🌎 Cuisines"):
+                st.markdown("""
+                - Italian  
+                - French  
+                - Chinese  
+                - Japanese  
+                - Indian  
+                - Mexican  
+                - Thai  
+                - Healthy  
+                - Fusion
+                """)
 
-    with col3:
-        st.markdown("#### ✨ Special Features")
-        st.markdown("""
-        - Pet-Friendly  
-        - Live Music  
-        - Rooftop View  
-        - Outdoor Seating  
-        - Private Dining
-        """)
+        with col3:
+            with st.expander("✨ Special Features"):
+                st.markdown("""
+                - Pet-Friendly  
+                - Live Music  
+                - Rooftop View  
+                - Outdoor Seating  
+                - Private Dining
+                """)
+
+
 
 
 # --- Display previous chat history (before new input) ---
+
 for msg in st.session_state.chat_history:
     # Check if both 'role' and 'message' are not None
     if msg['role'] is not None and msg['message'] is not None:
@@ -464,12 +294,12 @@ if user_input:
     history_prompt = st.session_state.last_assistant_reply
 
      # Store possible user info
-    user_info = store_user_info(user_input,history_prompt)
+    user_info = store_user_info(user_input,history_prompt,store_user_info_prompt,client)
     st.session_state.user_data.update(user_info)
     # st.rerun()
 
     # Detect intent
-    intent = determine_intent(user_input)
+    intent = determine_intent(user_input,determine_intent_prompt,client)
     # st.write(intent)
     if intent == "RUBBISH":
         # Display user data for confirmation instead of invoking LLM
@@ -491,6 +321,7 @@ if user_input:
 
 
     if user_data_complete and intent != "BOOK":
+       
         # Format user data as a Markdown bullet list
         user_details = "\n".join([f"- **{key.capitalize()}**: {value}" for key, value in st.session_state.user_data.items()])
         
@@ -504,37 +335,54 @@ if user_input:
             'message': f"✅ I have all the details needed for your reservation:\n{user_details}\nPlease type **`book`** to confirm."
         })
         st.session_state.last_assistant_reply = "I have all the reservation details. Waiting for confirmation..."
+        st.rerun()
         st.stop()
 
     
    
 
     response_summary = None
-
+       
     if intent == "SELECT":
-        user_data = st.session_state.user_data
-        restaurant_name = user_data["restaurant_name"]
-        party_size=user_data["party_size"]
-        time=user_data['time']
-        st.write(restaurant_name)
-        sql_query=generate_sql_query(user_input,restaurant_name,party_size,time, history_prompt, schema_prompt, client)
-        result = execute_query(sql_query)
-        # st.subheader("Generated SQL Query")
-        # st.code(sql_query, language='sql')
+        response_summary=handle_query(user_input, st.session_state.full_vector_db, client)
+        
+        # First try semantic search
+        semantic_results = {}
+        
+        # Search across all collections
+        restaurant_results = st.session_state.full_vector_db.semantic_search(user_input, "restaurants")
+        table_results = st.session_state.full_vector_db.semantic_search(user_input, "tables")
+        slot_results = st.session_state.full_vector_db.semantic_search(user_input, "slots")
+        
+        if not is_large_output_request(user_input) and any([restaurant_results, table_results, slot_results]):
+            semantic_results = {
+                "restaurants": restaurant_results,
+                "tables": table_results,
+                "slots": slot_results
+            }
+            # Format semantic results
+            summary = []
+            for category, items in semantic_results.items():
+                if items:
+                    summary.append(f"Found {len(items)} relevant {category}:")
+                    summary.extend([f"- {item['name']}" if 'name' in item else f"- {item}" 
+                                for item in items[:3]])
+            st.write("### Semantic Search used")
+            response_summary = "\n".join(summary)
+        else:
+            # Fall back to SQL generation for large or exact output requests
+            sql = generate_sql_query_v2(user_input,SCHEMA_DESCRIPTIONS, history_prompt, vector_db, client)
+            result = execute_query(sql)
+            response_summary = interpret_result_v2(result, user_input, sql)
 
-        # Display the result
-        # st.subheader("Query Result")
-
+            
+    
+        # sql = generate_sql_query_v2(user_input,history_prompt, vector_db, client)
+        # result = execute_query(sql)
+        # response_summary=interpret_result_v2(result, user_input, sql)
         # if isinstance(result, pd.DataFrame):
-        #     if result.empty:
-        #         st.info("Query executed successfully, but returned no results.")
-        #     else:
-        #         st.dataframe(result)
-        # else:
-        #     # Handle plain string or error
-        #     st.text(result)
-        if isinstance(result, pd.DataFrame):
-            response_summary = interpret_sql_result(user_input, sql_query, result)
+        #     response_summary = interpret_sql_result(user_input, sql_query, result)
+
     
     elif intent == "BOOK":
         required_keys = ["restaurant_name", "user_name", "contact", "party_size", "time"]
@@ -631,7 +479,7 @@ if user_input:
         user_input,
         history_prompt,
         response_summary or "Info stored.",
-        json.dumps(st.session_state.user_data)
+        json.dumps(st.session_state.user_data),generate_reservation_conversation_prompt,client
     )
     else:
         follow_up="Thanks for booking with FoodieSpot restaurant chain, I could assist you in new booking, also I could tell about restaurant features, pricing, etc... "
