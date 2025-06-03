@@ -24,6 +24,8 @@ This is a conversational restaurant reservation assistant built using **LLMs (ll
 
 
 
+---
+
 ### 🧩 Installation
 
 ```bash
@@ -32,13 +34,25 @@ cd restaurant-reservation-assistant
 pip install -r requirements.txt
 ```
 
+### 🔑 API Key Setup
+
+To use the LLM features, you'll need an API key from [Groq Console](https://console.groq.com/keys).
+Create an account (if you haven’t already), generate your key, and set it as an environment variable:
+
+```bash
+export GROQ_API_KEY=your_api_key_here
+```
+
+Or, add it to a `.env` file and load it using your preferred method.
+
 ### 🔗 Running the App
 
 ```bash
 streamlit run app.py
 ```
 
-Ensure the `restaurant_reservation.db` is in the /db folder inside  the root directory. This contains all restaurant, table, slot, and reservation data.
+Ensure the `restaurant_reservation.db` is in the `/db` folder inside the root directory. This contains all restaurant, table, slot, and reservation data.
+
 
 
 ---
@@ -364,6 +378,10 @@ By handling these cases gracefully, the assistant ensures that users have a seam
 ├── tools.py
 ├── var.py
 ├── requirements.txt
+├── Business Strategy Presentation/
+│   ├── app.js
+│   ├── index.html
+│   ├── style.js
 ├── prompts/
 │   ├── determine_intent.txt
 │   ├── generate_reservation_conversation.txt
