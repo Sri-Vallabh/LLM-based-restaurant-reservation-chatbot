@@ -3,8 +3,8 @@ title: Restaurant Chatbot
 emoji: 🚀
 colorFrom: red
 colorTo: red
-sdk: docker
-app_port: 8501
+sdk: streamlit
+app_file: app.py
 tags:
   - streamlit
 pinned: false
