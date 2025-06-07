@@ -7,9 +7,12 @@ FROM python:3.11-slim
 # Set the working directory in the container
 WORKDIR /app
 
-ENV HF_HOME=/app/hf_cache
+ENV HF_HOME=/data/hf_cache
+ENV TRANSFORMERS_CACHE=/data/hf_cache/transformers
+ENV HF_DATASETS_CACHE=/data/hf_cache/datasets
+ENV HF_HUB_CACHE=/data/hf_cache/hub
 
-RUN mkdir -p /app/hf_cache && chmod -R 777 /app/hf_cache
+RUN mkdir -p /data/hf_cache/transformers /data/hf_cache/datasets /data/hf_cache/hub && chmod -R 777 /data/hf_cache
 
 # Copy requirements.txt and install dependencies
 COPY requirements.txt .
