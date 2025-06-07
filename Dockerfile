@@ -1,3 +1,5 @@
+ENV HF_HOME=/app/hf_cache
+
 # Use an official Python runtime as a parent image
 FROM python:3.11-slim
 
