@@ -1,12 +1,14 @@
 ---
-title: My Streamlit App
+title: Restaurant Chatbot
 emoji: 🚀
-colorFrom: purple
-colorTo: pink
-sdk: streamlit
-sdk_version: 1.33.0
-app_file: app.py
+colorFrom: red
+colorTo: red
+sdk: docker
+app_port: 8501
+tags:
+  - streamlit
 pinned: false
+short_description: Streamlit template space
 license: mit
 
 ---
