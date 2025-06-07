@@ -51,7 +51,7 @@ class SchemaVectorDB:
 class FullVectorDB:
     def __init__(self):
         self.client = chromadb.PersistentClient(path="db/chroma")
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
+        model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", cache_folder="./my_cache")
         
         # Get existing collections or create if not exist
         self.restaurants_col = self.client.get_or_create_collection("restaurants")
