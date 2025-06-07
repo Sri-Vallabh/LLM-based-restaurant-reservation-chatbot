@@ -14,6 +14,9 @@ from tools import *
 from var import SCHEMA_DESCRIPTIONS, SchemaVectorDB, FullVectorDB
 import os
 from dotenv import load_dotenv
+import os
+os.environ["HF_HOME"] = "/app/hf_cache"
+
 load_dotenv()
 
 # Set your Groq API key
